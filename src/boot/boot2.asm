@@ -1,26 +1,61 @@
-[org 0x8000]
+[org 0x7e00]
+bits 16
 
-mov si, disk_load_s
+start:
+    ; kernel load code here
+    ; load kernel at 0x10000
+    mov ax, 0x1000
+    mov es, ax
+    mov bx, 0x0000
 
-print:
-    mov ah, 0x0e
-    mov al, [si]
+    mov dl, [0x0500]
 
-    cmp al, 0
-    je keyboard
+    mov ah, 0x02
+    mov al, KERNEL_SECTORS ; Sectors to load (1 sector is 512 bytes)
+    mov ch, 0
+    mov cl, 3
+    mov dh, 0
 
-    int 0x10
-    inc si
-    jmp print
+    int 0x13
+    jc disk_error
 
-keyboard:
-    mov ah, 0
-    int 0x16
+    jmp protected_mode_start
 
-    mov ah, 0x0e
-    int 0x10
+disk_error:
+    jmp $
 
-    jmp keyboard
+protected_mode_start:
+    cli
 
-disk_load_s:
-    db "sector 2 loaded successfully", 0
+    lgdt [gdt_descriptor]
+
+    mov eax, cr0
+    or eax, 1
+    mov cr0, eax
+
+    jmp 0x08:protected_mode
+
+gdt_start:
+    dq 0x0000000000000000
+    dq 0x00CF9A000000FFFF
+    dq 0x00CF92000000FFFF
+gdt_end:
+
+gdt_descriptor:
+    dw gdt_end - gdt_start - 1
+    dd gdt_start
+
+bits 32
+protected_mode:
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+    mov esp, 0x90000
+
+    ;jump to kernel address at 0x10000
+    jmp  0x10000
+
+times 512-($-$$) db 0

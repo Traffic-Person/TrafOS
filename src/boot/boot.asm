@@ -2,8 +2,6 @@
 
 jmp diskload
 
-boot_drive db 0
-
 ; mov ah, 0x0e        bios teletype mode
 ; mov al, '(letter)'  letter to print into al
 ; int 0x10            bios interrupt 0x10
@@ -26,23 +24,25 @@ prints:
     ret
 
 diskload:
-    mov ax, 0
+    xor ax, ax
+    mov ds, ax
     mov es, ax
 
-    mov bx, 0x8000
+    mov bx, 0x7e00
 
-    mov [boot_drive], dl
+    ;boot drive saved at 0x0500
+    mov [0x0500], dl
     mov ah, 0x02
     mov al, 1
     mov ch, 0
     mov cl, 2
     mov dh, 0
-    mov dl, [boot_drive]
+    mov dl, [0x0500]
 
     int 0x13
     jc disk_err
 
-    jmp 0x0000:0x8000
+    jmp 0x0000:0x7e00
 
 disk_err:
     mov si, disk_err_msg
