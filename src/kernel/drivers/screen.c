@@ -10,6 +10,13 @@ char cursor_visible = 1;
 char cursor_under = ' ';
 char cursor_color = 0x07;
 
+char current_color = 0x0F;
+
+void screen_set_color(char color)
+{
+    current_color = color;
+}
+
 void cursor_disable()
 {
     outb(0x3D4, 0x0A);
@@ -142,7 +149,41 @@ void print(char *text, char color)
 {
     while (*text != '\0')
     {
-        putchar(*text, color);
+        putchar(*text, current_color);
         text++;
+    }
+}
+
+void printerr(char *text)
+{
+    while (*text != '\0')
+    {
+        putchar(*text, 0x04);
+        text++;
+    }
+}
+
+void printnum(int number, char color)
+{
+    char buffer[12];
+    int i = 0;
+
+    if (number == 0)
+    {
+        putchar('0', color);
+        return;
+    }
+
+    while (number > 0)
+    {
+        buffer[i] = '0' + (number % 10);
+        number /= 10;
+        i++;
+    }
+
+    while (i > 0)
+    {
+        i--;
+        putchar(buffer[i], color);
     }
 }

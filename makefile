@@ -18,6 +18,9 @@ IO_C = src/kernel/drivers/io.c
 IDT_C = src/kernel/drivers/idt.c
 TIMER_C = src/kernel/drivers/timer.c
 COMMAND_C = src/kernel/drivers/command.c
+RTC_C = src/kernel/drivers/rtc.c
+CPU_C = src/kernel/drivers/cpu.c
+DISK_C = src/kernel/drivers/disk.c
 
 #DRIVERS C
 
@@ -37,6 +40,9 @@ IO_OBJ = build/io.o
 IDT_OBJ = build/idt.o
 TIMER_OBJ = build/timer.o
 COMMAND_OBJ = build/command.o
+RTC_OBJ = build/rtc.o
+CPU_OBJ = build/cpu.o
+DISK_OBJ = build/disk.o
 
 #DRIVERS OBJ
 
@@ -91,8 +97,17 @@ $(TIMER_OBJ): $(TIMER_C) | build
 $(COMMAND_OBJ): $(COMMAND_C) | build
 	$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(COMMAND_C) -o $(COMMAND_OBJ)
 
-$(KERNEL_ELF): $(KERNEL_ENTRY_OBJ) $(KERNEL_C_OBJ) $(SCREEN_OBJ) $(KEYBOARD_OBJ) $(IO_OBJ) $(INTERRUPTS_OBJ) $(IDT_OBJ) $(TIMER_OBJ) $(COMMAND_OBJ) $(LINKER)
-	$(LD) -m elf_i386 -T $(LINKER) $(KERNEL_ENTRY_OBJ) $(KERNEL_C_OBJ) $(SCREEN_OBJ) $(KEYBOARD_OBJ) $(IO_OBJ) $(INTERRUPTS_OBJ) $(IDT_OBJ) $(TIMER_OBJ) $(COMMAND_OBJ) -o $(KERNEL_ELF)
+$(RTC_OBJ): $(RTC_C) | build
+	$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(RTC_C) -o $(RTC_OBJ)
+
+$(CPU_OBJ): $(CPU_C) | build
+	$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(CPU_C) -o $(CPU_OBJ)
+
+$(DISK_OBJ): $(DISK_C) | build
+	$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(DISK_C) -o $(DISK_OBJ)
+
+$(KERNEL_ELF): $(KERNEL_ENTRY_OBJ) $(KERNEL_C_OBJ) $(SCREEN_OBJ) $(KEYBOARD_OBJ) $(IO_OBJ) $(INTERRUPTS_OBJ) $(IDT_OBJ) $(TIMER_OBJ) $(COMMAND_OBJ) $(RTC_OBJ) $(CPU_OBJ) $(DISK_OBJ) $(LINKER)
+	$(LD) -m elf_i386 -T $(LINKER) $(KERNEL_ENTRY_OBJ) $(KERNEL_C_OBJ) $(SCREEN_OBJ) $(KEYBOARD_OBJ) $(IO_OBJ) $(INTERRUPTS_OBJ) $(IDT_OBJ) $(TIMER_OBJ) $(COMMAND_OBJ) $(DISK_OBJ) $(RTC_OBJ) $(CPU_OBJ) -o $(KERNEL_ELF)
 
 $(KERNEL_BIN): $(KERNEL_ELF) | build
 	$(OBJCOPY) -O binary $(KERNEL_ELF) $(KERNEL_BIN)
@@ -101,7 +116,7 @@ $(OS_IMAGE): $(BOOT_BIN) $(BOOT2_BIN) $(KERNEL_BIN)
 	cat $(BOOT_BIN) $(BOOT2_BIN) $(KERNEL_BIN) > $(OS_IMAGE)
 
 run: $(OS_IMAGE)
-	qemu-system-x86_64 -drive format=raw,file=$(OS_IMAGE)
+	qemu-system-x86_64 -drive format=raw,file=$(OS_IMAGE),if=ide,index=0
 
 clean:
 	rm -rf build 

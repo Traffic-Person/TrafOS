@@ -2,6 +2,7 @@
 #include "drivers/keyboard.h"
 #include "drivers/idt.h"
 #include "drivers/timer.h"
+#include "drivers/disk.h"
 
 void kernel_main(void)
 {
@@ -12,6 +13,10 @@ void kernel_main(void)
     idt_init();
     timer_init();
     __asm__ volatile("sti"); //start accepting interrupts
+
+    unsigned char buffer[512];
+
+    disk_read(0, buffer);
 
     print("TrafOS$ ", 0x0F);
 

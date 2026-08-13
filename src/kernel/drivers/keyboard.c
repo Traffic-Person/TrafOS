@@ -155,7 +155,10 @@ void keyboard_handler()
 
             input_pos = 0;
 
-            print("TrafOS$ ", 0x0F);
+            if (!entering_color)
+            {
+                print("TrafOS$ ", 0x0F);
+            }
         }
         else if (key == '\b')
         {

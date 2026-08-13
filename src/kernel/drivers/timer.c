@@ -3,10 +3,13 @@
 #include "screen.h"
 
 volatile unsigned int ticks = 0;
+unsigned int timer_ticks = 0;
 
 void timer_handler()
 {
     ticks++;
+
+    timer_ticks++;
 
     if (ticks % 50 == 0)
     {
