@@ -4,21 +4,21 @@
 #include "drivers/timer.h"
 #include "drivers/disk.h"
 
+#include "filesystem/filesystem.h"
+
 void kernel_main(void)
 {
     screen_clear();
     cursor_disable();
-    print("Loaded!\n", 0x0F);
+    print("Welcome to TrafOS\n", 0x0F);
     
     idt_init();
     timer_init();
     __asm__ volatile("sti"); //start accepting interrupts
 
-    unsigned char buffer[512];
+    filesystem_start();
 
-    disk_read(0, buffer);
-
-    print("TrafOS$ ", 0x0F);
+    filesystem_print_path();
 
     while (1) // dont let it end 
     {

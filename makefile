@@ -24,6 +24,10 @@ DISK_C = src/kernel/drivers/disk.c
 
 #DRIVERS C
 
+#FILESYSTEM C
+FILESYSTEM_C = src/kernel/filesystem/filesystem.c
+#FILESYSTEM C
+
 BOOT_BIN = build/boot.bin
 BOOT2_BIN = build/boot2.bin
 
@@ -45,6 +49,10 @@ CPU_OBJ = build/cpu.o
 DISK_OBJ = build/disk.o
 
 #DRIVERS OBJ
+
+#FILESYSTEM OBJ
+FILESYSTEM_OBJ = build/filesystem.o
+#FILESYSTEM OBJ
 
 KERNEL_ELF = build/kernel.elf
 KERNEL_BIN = build/kernel.bin
@@ -106,14 +114,18 @@ $(CPU_OBJ): $(CPU_C) | build
 $(DISK_OBJ): $(DISK_C) | build
 	$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(DISK_C) -o $(DISK_OBJ)
 
-$(KERNEL_ELF): $(KERNEL_ENTRY_OBJ) $(KERNEL_C_OBJ) $(SCREEN_OBJ) $(KEYBOARD_OBJ) $(IO_OBJ) $(INTERRUPTS_OBJ) $(IDT_OBJ) $(TIMER_OBJ) $(COMMAND_OBJ) $(RTC_OBJ) $(CPU_OBJ) $(DISK_OBJ) $(LINKER)
-	$(LD) -m elf_i386 -T $(LINKER) $(KERNEL_ENTRY_OBJ) $(KERNEL_C_OBJ) $(SCREEN_OBJ) $(KEYBOARD_OBJ) $(IO_OBJ) $(INTERRUPTS_OBJ) $(IDT_OBJ) $(TIMER_OBJ) $(COMMAND_OBJ) $(DISK_OBJ) $(RTC_OBJ) $(CPU_OBJ) -o $(KERNEL_ELF)
+$(FILESYSTEM_OBJ): $(FILESYSTEM_C) | build
+	$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(FILESYSTEM_C) -o $(FILESYSTEM_OBJ)
+
+$(KERNEL_ELF): $(KERNEL_ENTRY_OBJ) $(KERNEL_C_OBJ) $(SCREEN_OBJ) $(KEYBOARD_OBJ) $(IO_OBJ) $(INTERRUPTS_OBJ) $(IDT_OBJ) $(TIMER_OBJ) $(FILESYSTEM_OBJ) $(COMMAND_OBJ) $(RTC_OBJ) $(CPU_OBJ) $(DISK_OBJ) $(LINKER)
+	$(LD) -m elf_i386 -T $(LINKER) $(KERNEL_ENTRY_OBJ) $(KERNEL_C_OBJ) $(SCREEN_OBJ) $(KEYBOARD_OBJ) $(IO_OBJ) $(INTERRUPTS_OBJ) $(IDT_OBJ) $(TIMER_OBJ) $(FILESYSTEM_OBJ) $(COMMAND_OBJ) $(DISK_OBJ) $(RTC_OBJ) $(CPU_OBJ) -o $(KERNEL_ELF)
 
 $(KERNEL_BIN): $(KERNEL_ELF) | build
 	$(OBJCOPY) -O binary $(KERNEL_ELF) $(KERNEL_BIN)
 
 $(OS_IMAGE): $(BOOT_BIN) $(BOOT2_BIN) $(KERNEL_BIN)
 	cat $(BOOT_BIN) $(BOOT2_BIN) $(KERNEL_BIN) > $(OS_IMAGE)
+	truncate -s 1M $(OS_IMAGE)
 
 run: $(OS_IMAGE)
 	qemu-system-x86_64 -drive format=raw,file=$(OS_IMAGE),if=ide,index=0

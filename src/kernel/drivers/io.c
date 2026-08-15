@@ -34,3 +34,12 @@ unsigned short inw(unsigned short port)
 
     return result;
 }
+
+void outw(unsigned short port, unsigned short value)
+{
+    __asm__ volatile (
+        "outw %0, %1"
+        :
+        : "a"(value), "Nd"(port)
+    );
+}

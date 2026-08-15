@@ -2,6 +2,7 @@
 #include "io.h"
 #include "screen.h"
 #include "command.h"
+#include "../filesystem/filesystem.h"
 
 char input[128];
 int input_pos = 0;
@@ -155,10 +156,7 @@ void keyboard_handler()
 
             input_pos = 0;
 
-            if (!entering_color)
-            {
-                print("TrafOS$ ", 0x0F);
-            }
+            filesystem_print_path();
         }
         else if (key == '\b')
         {

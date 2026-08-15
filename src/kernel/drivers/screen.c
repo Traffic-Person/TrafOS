@@ -78,6 +78,14 @@ void scroll()
         }
     }
 
+    for (int x = 0; x < VGA_WIDTH; x++)
+    {
+        int i = ((VGA_HEIGHT - 1) * VGA_WIDTH + x) * 2;
+
+        vga[i] = ' ';
+        vga[i+1] = 0x00;
+    }
+
     cursor_y = VGA_HEIGHT - 1;
 }
 
@@ -156,9 +164,15 @@ void print(char *text, char color)
 
 void printerr(char *text)
 {
+    putchar('E', 0x04);
+    putchar('r', 0x04);
+    putchar('r', 0x04);
+    putchar(':', 0x04);
+    putchar(' ', 0x04);
+    
     while (*text != '\0')
     {
-        putchar(*text, 0x04);
+        putchar(*text, 0x0F);
         text++;
     }
 }

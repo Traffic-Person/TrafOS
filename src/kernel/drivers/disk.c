@@ -28,49 +28,6 @@ void disk_hang()
     }
 }
 
-int ata_wait_bsy()
-{
-    int timeout = ATA_TIMEOUT;
-
-    while (timeout > 0)
-    {
-        unsigned char status = inb(ATA_STATUS);
-
-        if (!(status & STATUS_BSY))
-        {
-            return 1;
-        }
-
-        timeout--;
-    }
-
-    return 0;
-}
-
-int ata_wait_drq()
-{
-    int timeout = ATA_TIMEOUT;
-
-    while (timeout > 0)
-    {
-        unsigned char status = inb(ATA_STATUS);
-
-        if (status & STATUS_ERR)
-        {
-            return -1;
-        }
-
-        if (!(status & STATUS_BSY) && (status & STATUS_DRQ))
-        {
-            return 1;
-        }
-
-        timeout--;
-    }
-
-    return 0;
-}
-
 void disk_read(unsigned int lba, unsigned char *buffer)
 {
     unsigned char status;
@@ -161,6 +118,147 @@ void disk_read(unsigned int lba, unsigned char *buffer)
     if (status & STATUS_ERR)
     {
         print("ATA: error after read\n", 0x04);
+        disk_hang();
+    }
+}
+
+void disk_write(unsigned int lba, unsigned char *buffer)
+{
+    unsigned char status;
+    int timeout;
+
+    /*
+     * Select primary master using LBA28.
+     */
+    outb(ATA_DRIVE, 0xE0 | ((lba >> 24) & 0x0F));
+
+    /*
+     * 400ns delay.
+     */
+    inb(ATA_STATUS);
+    inb(ATA_STATUS);
+    inb(ATA_STATUS);
+    inb(ATA_STATUS);
+
+    /*
+     * Wait until the drive is no longer busy.
+     */
+    timeout = ATA_TIMEOUT;
+
+    while (timeout > 0)
+    {
+        status = inb(ATA_STATUS);
+
+        if (!(status & STATUS_BSY))
+        {
+            break;
+        }
+
+        timeout--;
+    }
+
+    if (timeout == 0)
+    {
+        printerr("ATA: write busy timeout\n");
+        disk_hang();
+    }
+
+    /*
+     * Tell ATA we are writing one sector.
+     */
+    outb(ATA_SECCOUNT, 1);
+
+    /*
+     * Set LBA.
+     */
+    outb(ATA_LBA_LOW,  lba & 0xFF);
+    outb(ATA_LBA_MID,  (lba >> 8) & 0xFF);
+    outb(ATA_LBA_HIGH, (lba >> 16) & 0xFF);
+
+    /*
+     * WRITE SECTORS command.
+     */
+    outb(ATA_COMMAND, 0x30);
+
+    /*
+     * Wait for the drive to request data.
+     */
+    timeout = ATA_TIMEOUT;
+
+    while (timeout > 0)
+    {
+        status = inb(ATA_STATUS);
+
+        if (status & STATUS_ERR)
+        {
+            printerr("ATA: write error\n");
+            disk_hang();
+        }
+
+        if (!(status & STATUS_BSY) && (status & STATUS_DRQ))
+        {
+            break;
+        }
+
+        timeout--;
+    }
+
+    if (timeout == 0)
+    {
+        printerr("ATA: write DRQ timeout\n");
+        disk_hang();
+    }
+
+    /*
+     * Send 512 bytes = 256 words.
+     */
+    for (int i = 0; i < 256; i++)
+    {
+        unsigned short data;
+
+        data = buffer[i * 2];
+        data |= ((unsigned short)buffer[i * 2 + 1]) << 8;
+
+        outw(ATA_DATA, data);
+    }
+
+    /*
+     * Wait for the write to finish.
+     */
+    timeout = ATA_TIMEOUT;
+
+    while (timeout > 0)
+    {
+        status = inb(ATA_STATUS);
+
+        if (status & STATUS_ERR)
+        {
+            printerr("ATA: write error after data\n");
+            disk_hang();
+        }
+
+        if (!(status & STATUS_BSY))
+        {
+            break;
+        }
+
+        timeout--;
+    }
+
+    if (timeout == 0)
+    {
+        printerr("ATA: write completion timeout\n");
+        disk_hang();
+    }
+
+    /*
+     * Final status check.
+     */
+    status = inb(ATA_STATUS);
+
+    if (status & STATUS_ERR)
+    {
+        printerr("ATA: write failed\n");
         disk_hang();
     }
 }
