@@ -36,9 +36,18 @@ protected_mode_start:
     jmp 0x08:protected_mode
 
 gdt_start:
+    ; 0x00 null
     dq 0x0000000000000000
+    ; 0x08 kernel code ring 0
     dq 0x00CF9A000000FFFF
+    ; 0x10 kernel data ring 0
     dq 0x00CF92000000FFFF
+    ; 0x18 user code ring 3
+    dq 0x00CFFA000000FFFF
+    ; 0x20 user data ring 3
+    dq 0x00CFF2000000FFFF
+    ; 0x28 - TSS
+    dq 0x0000890800000067
 gdt_end:
 
 gdt_descriptor:

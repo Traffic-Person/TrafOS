@@ -62,6 +62,25 @@ int hex_to_number(char *text)
     return result;
 }
 
+void execute_test_program(char *name)
+{
+    unsigned char buffer[512];
+
+    if (!filesystem_read_file_data(name, buffer, 512))
+    {
+        printerr("could not load executable\n");
+        return;
+    }
+
+    unsigned char *program = (unsigned char *)0x20000;
+
+    for (unsigned int i = 0; i < 512; i++)
+    {
+        program[i] = buffer[i];
+    }
+
+    print("Program loaded at 0x20000\n", 0x0A);
+}
 
 void command_run(char *input)
 {
@@ -427,6 +446,44 @@ void command_run(char *input)
         else if (!filesystem_read_file(argument))
         {
             printerr("could not read file\n");
+        }
+    }
+
+    else if (strcmp(command, "loadtest"))
+    {
+        unsigned char buffer[512];
+
+        if (filesystem_read_file_data(argument, buffer, 512))
+        {
+            print("Loaded file into memory\n", 0x0A);
+
+            print("Contents: ", 0x0F);
+
+            print("Bytes: ", 0x0F);
+
+            for (unsigned int i = 0; i < 16; i++)
+            {
+                printnum(buffer[i], 0x0F);
+                print(" ", 0x0F);
+            }
+
+            print("\n", 0x0F);
+        }
+        else
+        {
+            printerr("could not load file\n");
+        }
+    }
+
+    else if (strcmp(command, "exec"))
+    {
+        if (argument[0] == '\0')
+        {
+            printerr("missing executable name\n");
+        }
+        else
+        {
+            execute_test_program(argument);
         }
     }
 

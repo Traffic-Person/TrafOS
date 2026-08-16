@@ -3,6 +3,7 @@
 
 extern void timer_interrupt();
 extern void keyboard_interrupt();
+extern void syscall_interrupt();
 
 struct IDTEntry
 {
@@ -31,6 +32,10 @@ void idt_set_gate(int number, unsigned int handler)
     idt[number].offset_high = (handler >> 16) & 0xFFFF;
 }
 
+void syscall_handler()
+{
+}
+
 void idt_load()
 {
     __asm__ volatile("lidt %0" : : "m"(idt_pointer));
@@ -54,6 +59,15 @@ void pic_remap()
     outb(0xA1, 0x40);
 }
 
+void idt_set_syscall_gate(int number, unsigned int handler)
+{
+    idt[number].offset_low = handler & 0xFFFF;
+    idt[number].selector = 0x08;
+    idt[number].zero = 0;
+    idt[number].type_attr = 0xEE;
+    idt[number].offset_high = (handler >> 16) & 0xFFFF;
+}
+
 void idt_init()
 {
     pic_remap();
@@ -72,6 +86,8 @@ void idt_init()
     
     idt_set_gate(32, (unsigned int)timer_interrupt);
     idt_set_gate(33, (unsigned int)keyboard_interrupt);
+
+    idt_set_syscall_gate(0x80, (unsigned int)syscall_interrupt);
 
     idt_load();
 }

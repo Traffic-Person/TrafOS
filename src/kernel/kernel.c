@@ -6,6 +6,8 @@
 
 #include "filesystem/filesystem.h"
 
+extern void enter_user_mode(void);
+
 void kernel_main(void)
 {
     screen_clear();

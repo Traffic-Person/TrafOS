@@ -95,27 +95,6 @@ int filesystem_load_entries()
     return 1;
 }
 
-void filesystem_init()
-{
-    superblock.magic = FS_MAGIC;
-    superblock.filesystem_start = FS_START_LBA;
-    superblock.entry_start = FS_START_LBA + 1;
-    superblock.entry_count = FS_MAX_ENTRIES;
-    superblock.data_start = FS_START_LBA + 1 + FS_ENTRY_SECTORS;
-
-    for (int i = 0; i < FS_MAX_ENTRIES; i++)
-    {
-        entries[i].used = 0;
-    }
-
-    filesystem_create("/", FS_TYPE_DIRECTORY, 0, 1, 0);
-    filesystem_create("data", FS_TYPE_DIRECTORY, 0, 1, 1);
-    filesystem_create("hello.txt", FS_TYPE_FILE, 1, 1, 1);
-
-    filesystem_save_superblock();
-    filesystem_save_entries();
-}
-
 void filesystem_list(unsigned int directory)
 {
     for (int i = 0; i < FS_MAX_ENTRIES; i++)
@@ -385,6 +364,118 @@ int filesystem_read_file(char *name)
     return 0;
 }
 
+int filesystem_read_file_data(char *name, unsigned char *buffer, unsigned int buffer_size)
+{
+    for (int i = 0; i < FS_MAX_ENTRIES; i++)
+    {
+        if (!entries[i].used)
+        {
+            continue;
+        }
+
+        if (entries[i].parent != current_dir)
+        {
+            continue;
+        }
+
+        if (!fsstrcmp(entries[i].name, name))
+        {
+            continue;
+        }
+
+        if (entries[i].type != FS_TYPE_FILE)
+        {
+            return 0;
+        }
+
+        if (entries[i].size > buffer_size)
+        {
+            return 0;
+        }
+
+        if (entries[i].size == 0)
+        {
+            return 1;
+        }
+
+        unsigned char sector[FS_SECTOR_SIZE];
+
+        disk_read(entries[i].start_lba, sector);
+
+        for (unsigned int j = 0; j < entries[i].size; j++)
+        {
+            buffer[j] = sector[j];
+        }
+
+        return 1;
+    }
+
+    return 0;
+}
+
+int filesystem_write_file_data(char *name, unsigned char *data, unsigned int size)
+{
+    if (size > FS_SECTOR_SIZE)
+    {
+        return 0;
+    }
+    
+    for (int i = 0; i < FS_MAX_ENTRIES; i++)
+    {
+        if (!entries[i].used)
+        {
+            continue;
+        }
+
+        if (entries[i].parent != current_dir)
+        {
+            continue;
+        }
+
+        if (!fsstrcmp(entries[i].name, name))
+        {
+            continue;
+        }
+
+        if (entries[i].type != FS_TYPE_FILE)
+        {
+            return 0;
+        }
+
+        if (!entries[i].writable)
+        {
+            return 0;
+        }
+
+        if (entries[i].start_lba == 0)
+        {
+            entries[i].start_lba = filesystem_find_free_data_sector();
+        }
+
+        unsigned char buffer[FS_SECTOR_SIZE];
+
+        for (int j = 0; j < FS_SECTOR_SIZE; j++)
+        {
+            buffer[j] = 0;
+        }
+
+        for (unsigned int j = 0; j < size; j++)
+        {
+            buffer[j] = data[j];
+        }
+
+        disk_write(entries[i].start_lba, buffer);
+
+        entries[i].size = size;
+
+        filesystem_save_entries();
+
+        return 1;
+    }
+
+    return 0;
+}
+
 int filesystem_write_file(char *name, char *data)
 {
     int length = filesystem_string_length(data);
@@ -427,8 +518,7 @@ int filesystem_write_file(char *name, char *data)
          */
         if (entries[i].start_lba == 0)
         {
-            entries[i].start_lba =
-                filesystem_find_free_data_sector();
+            entries[i].start_lba = filesystem_find_free_data_sector();
         }
 
         unsigned char buffer[FS_SECTOR_SIZE];
@@ -449,13 +539,6 @@ int filesystem_write_file(char *name, char *data)
             buffer[j] = data[j];
         }
 
-        for (int j = 0; j < length; j++)
-        {
-            putchar(buffer[j], 0x0E);
-        }
-
-        print("\n", 0x0E);
-
         /*
          * Write sector.
          */
@@ -475,6 +558,29 @@ int filesystem_write_file(char *name, char *data)
     }
 
     return 0;
+}
+
+void filesystem_init()
+{
+    superblock.magic = FS_MAGIC;
+    superblock.filesystem_start = FS_START_LBA;
+    superblock.entry_start = FS_START_LBA + 1;
+    superblock.entry_count = FS_MAX_ENTRIES;
+    superblock.data_start = FS_START_LBA + 1 + FS_ENTRY_SECTORS;
+
+    for (int i = 0; i < FS_MAX_ENTRIES; i++)
+    {
+        entries[i].used = 0;
+    }
+
+    filesystem_create("/", FS_TYPE_DIRECTORY, 0, 1, 0);
+    filesystem_create("data", FS_TYPE_DIRECTORY, 0, 1, 1);
+    filesystem_create("hello.txt", FS_TYPE_FILE, 1, 1, 1);
+
+    filesystem_create("hello.exe", FS_TYPE_FILE, 0, 1, 0);
+
+    filesystem_save_superblock();
+    filesystem_save_entries();
 }
 
 void filesystem_start()
