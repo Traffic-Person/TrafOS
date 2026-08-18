@@ -32,13 +32,13 @@ void idt_set_gate(int number, unsigned int handler)
     idt[number].offset_high = (handler >> 16) & 0xFFFF;
 }
 
-void syscall_handler()
-{
-}
-
 void idt_load()
 {
     __asm__ volatile("lidt %0" : : "m"(idt_pointer));
+}
+
+void syscall_handler()
+{
 }
 
 void pic_remap()
@@ -62,7 +62,7 @@ void pic_remap()
 void idt_set_syscall_gate(int number, unsigned int handler)
 {
     idt[number].offset_low = handler & 0xFFFF;
-    idt[number].selector = 0x08;
+    idt[number].selector = 0x80;
     idt[number].zero = 0;
     idt[number].type_attr = 0xEE;
     idt[number].offset_high = (handler >> 16) & 0xFFFF;

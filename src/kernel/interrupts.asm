@@ -21,7 +21,7 @@ keyboard_interrupt:
     popa
     iretd
 
-syscall_interrupt
+syscall_interrupt:
     pusha
     call syscall_handler
     popa

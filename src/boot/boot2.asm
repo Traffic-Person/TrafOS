@@ -46,8 +46,6 @@ gdt_start:
     dq 0x00CFFA000000FFFF
     ; 0x20 user data ring 3
     dq 0x00CFF2000000FFFF
-    ; 0x28 - TSS
-    dq 0x0000890800000067
 gdt_end:
 
 gdt_descriptor:
