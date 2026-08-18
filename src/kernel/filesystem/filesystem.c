@@ -577,8 +577,6 @@ void filesystem_init()
     filesystem_create("data", FS_TYPE_DIRECTORY, 0, 1, 1);
     filesystem_create("hello.txt", FS_TYPE_FILE, 1, 1, 1);
 
-    filesystem_create("hello.exe", FS_TYPE_FILE, 0, 1, 0);
-
     filesystem_save_superblock();
     filesystem_save_entries();
 }

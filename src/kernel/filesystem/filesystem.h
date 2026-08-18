@@ -60,17 +60,6 @@ int filesystem_read_file(char *name);
 int filesystem_read_file_data(char *name, unsigned char *buffer, unsigned int buffer_size);
 int filesystem_write_file_data(char *name, unsigned char *data, unsigned int size);
 
-#define EXE_MAGIC 0x54455845
-#define EXE_VERSION 1
-
-typedef struct 
-{
-    unsigned int magic;
-    unsigned int version;
-    unsigned int entry;
-    unsigned int code_size;
-} traf_exe_header;
-
 int filesystem_create(
     char *name,
     unsigned char type,

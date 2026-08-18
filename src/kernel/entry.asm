@@ -11,18 +11,6 @@ _start:
 
     mov esp, 0x90000
 
-    mov edi, 0x80000
-    mov ecx, 26
-    xor eax, eax
-    rep stosd
-
-    mov dword [0x80004], 0x90000
-    mov word [0x80008], 0x10
-    mov word [0x80066], 104
-
-    mov ax, 0x28
-    ltr ax
-
     call kernel_main
 
 .hang:

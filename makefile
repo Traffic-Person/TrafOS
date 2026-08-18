@@ -12,7 +12,7 @@ KERNEL_C = src/kernel/kernel.c
 LINKER = src/kernel/linker.ld
 
 #DRIVERS C
-SCREEN_C = src/kernel/drivers/screen.c
+GRAPHICS_C = src/kernel/drivers/graphics.c
 KEYBOARD_C = src/kernel/drivers/keyboard.c
 IO_C = src/kernel/drivers/io.c
 IDT_C = src/kernel/drivers/idt.c
@@ -38,7 +38,7 @@ INTERRUPTS_OBJ = build/interrupts.o
 #KERNEL OBJ
 
 #DRIVERS OBJ
-SCREEN_OBJ = build/screen.o
+GRAPHICS_OBJ = build/graphics.o
 KEYBOARD_OBJ = build/keyboard.o
 IO_OBJ = build/io.o
 IDT_OBJ = build/idt.o
@@ -81,44 +81,47 @@ $(BOOT2_BIN): $(BOOT2) $(KERNEL_BIN) | build
 $(KERNEL_ENTRY_OBJ): $(KERNEL_ENTRY) | build
 	$(ASM) $(KERNEL_ENTRY) -f elf32 -o $(KERNEL_ENTRY_OBJ)
 
-$(INTERRUPTS_OBJ): $(INTERRUPTS) | build
-	$(ASM) $(INTERRUPTS) -f elf32 -o $(INTERRUPTS_OBJ)
+#$(INTERRUPTS_OBJ): $(INTERRUPTS) | build
+#$(ASM) $(INTERRUPTS) -f elf32 -o $(INTERRUPTS_OBJ)
 
 $(KERNEL_C_OBJ): $(KERNEL_C) | build
 	$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(KERNEL_C) -o $(KERNEL_C_OBJ)
 
-$(SCREEN_OBJ): $(SCREEN_C) | build
-	$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(SCREEN_C) -o $(SCREEN_OBJ)
+$(GRAPHICS_OBJ): $(GRAPHICS_C) | build
+	$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(GRAPHICS_C) -o $(GRAPHICS_OBJ)
 
-$(KEYBOARD_OBJ): $(KEYBOARD_C) | build
-	$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(KEYBOARD_C) -o $(KEYBOARD_OBJ)
+#$(KEYBOARD_OBJ): $(KEYBOARD_C) | build
+#$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(KEYBOARD_C) -o $(KEYBOARD_OBJ)
 
-$(IO_OBJ): $(IO_C) | build
-	$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(IO_C) -o $(IO_OBJ)
+#$(IO_OBJ): $(IO_C) | build
+#$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(IO_C) -o $(IO_OBJ)
 
-$(IDT_OBJ): $(IDT_C) | build
-	$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(IDT_C) -o $(IDT_OBJ)
+#$(IDT_OBJ): $(IDT_C) | build
+#$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(IDT_C) -o $(IDT_OBJ)
 
-$(TIMER_OBJ): $(TIMER_C) | build
-	$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(TIMER_C) -o $(TIMER_OBJ)
+#$(TIMER_OBJ): $(TIMER_C) | build
+#$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(TIMER_C) -o $(TIMER_OBJ)
 
-$(COMMAND_OBJ): $(COMMAND_C) | build
-	$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(COMMAND_C) -o $(COMMAND_OBJ)
+#$(COMMAND_OBJ): $(COMMAND_C) | build
+#$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(COMMAND_C) -o $(COMMAND_OBJ)
 
-$(RTC_OBJ): $(RTC_C) | build
-	$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(RTC_C) -o $(RTC_OBJ)
+#$(RTC_OBJ): $(RTC_C) | build
+#$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(RTC_C) -o $(RTC_OBJ)
 
-$(CPU_OBJ): $(CPU_C) | build
-	$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(CPU_C) -o $(CPU_OBJ)
+#$(CPU_OBJ): $(CPU_C) | build
+#$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(CPU_C) -o $(CPU_OBJ)
 
-$(DISK_OBJ): $(DISK_C) | build
-	$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(DISK_C) -o $(DISK_OBJ)
+#$(DISK_OBJ): $(DISK_C) | build
+#$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(DISK_C) -o $(DISK_OBJ)
 
-$(FILESYSTEM_OBJ): $(FILESYSTEM_C) | build
-	$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(FILESYSTEM_C) -o $(FILESYSTEM_OBJ)
+#$(FILESYSTEM_OBJ): $(FILESYSTEM_C) | build
+#$(CC) -m32 -ffreestanding -fno-pie -fno-stack-protector -c $(FILESYSTEM_C) -o $(FILESYSTEM_OBJ)
 
-$(KERNEL_ELF): $(KERNEL_ENTRY_OBJ) $(KERNEL_C_OBJ) $(SCREEN_OBJ) $(KEYBOARD_OBJ) $(IO_OBJ) $(INTERRUPTS_OBJ) $(IDT_OBJ) $(TIMER_OBJ) $(FILESYSTEM_OBJ) $(COMMAND_OBJ) $(RTC_OBJ) $(CPU_OBJ) $(DISK_OBJ) $(LINKER)
-	$(LD) -m elf_i386 -T $(LINKER) $(KERNEL_ENTRY_OBJ) $(KERNEL_C_OBJ) $(SCREEN_OBJ) $(KEYBOARD_OBJ) $(IO_OBJ) $(INTERRUPTS_OBJ) $(IDT_OBJ) $(TIMER_OBJ) $(FILESYSTEM_OBJ) $(COMMAND_OBJ) $(DISK_OBJ) $(RTC_OBJ) $(CPU_OBJ) -o $(KERNEL_ELF)
+#$(KERNEL_ELF): $(KERNEL_ENTRY_OBJ) $(KERNEL_C_OBJ) $(SCREEN_OBJ) $(KEYBOARD_OBJ) $(IO_OBJ) $(INTERRUPTS_OBJ) $(IDT_OBJ) $(TIMER_OBJ) $(FILESYSTEM_OBJ) $(COMMAND_OBJ) $(RTC_OBJ) $(CPU_OBJ) $(DISK_OBJ) $(LINKER)
+#$(LD) -m elf_i386 -T $(LINKER) $(KERNEL_ENTRY_OBJ) $(KERNEL_C_OBJ) $(SCREEN_OBJ) $(KEYBOARD_OBJ) $(IO_OBJ) $(INTERRUPTS_OBJ) $(IDT_OBJ) $(TIMER_OBJ) $(FILESYSTEM_OBJ) $(COMMAND_OBJ) $(DISK_OBJ) $(RTC_OBJ) $(CPU_OBJ) -o $(KERNEL_ELF)
+
+$(KERNEL_ELF): $(KERNEL_ENTRY_OBJ) $(KERNEL_C_OBJ) $(GRAPHICS_OBJ) $(LINKER)
+	$(LD) -m elf_i386 -T $(LINKER) $(KERNEL_ENTRY_OBJ) $(KERNEL_C_OBJ) $(GRAPHICS_OBJ) -o $(KERNEL_ELF)
 
 $(KERNEL_BIN): $(KERNEL_ELF) | build
 	$(OBJCOPY) -O binary $(KERNEL_ELF) $(KERNEL_BIN)

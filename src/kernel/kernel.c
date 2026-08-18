@@ -1,12 +1,26 @@
-#include "drivers/screen.h"
+#include "drivers/graphics.h"
+
+void kernel_main(void)
+{
+    graphics_init();
+
+    clear_screen(C_BLACK);
+
+    fill_rect(100, 100, 500, 300, C_RED);
+
+    while (1)
+    {
+        __asm__ volatile("hlt");
+    }
+}
+
+/*
 #include "drivers/keyboard.h"
 #include "drivers/idt.h"
 #include "drivers/timer.h"
 #include "drivers/disk.h"
 
 #include "filesystem/filesystem.h"
-
-extern void enter_user_mode(void);
 
 void kernel_main(void)
 {
@@ -26,4 +40,4 @@ void kernel_main(void)
     {
         __asm__ volatile("hlt");
     }
-}
+}*/

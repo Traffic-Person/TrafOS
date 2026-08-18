@@ -33,7 +33,7 @@ diskload:
     ;boot drive saved at 0x0500
     mov [0x0500], dl
     mov ah, 0x02
-    mov al, 1
+    mov al, 2
     mov ch, 0
     mov cl, 2
     mov dh, 0
