@@ -1,6 +1,6 @@
 #include "timer.h"
 #include "io.h"
-#include "screen.h"
+#include "graphics.h"
 
 volatile unsigned int ticks = 0;
 unsigned int timer_ticks = 0;

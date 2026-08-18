@@ -1,6 +1,6 @@
 #include "keyboard.h"
 #include "io.h"
-#include "screen.h"
+#include "graphics.h"
 #include "command.h"
 #include "../filesystem/filesystem.h"
 

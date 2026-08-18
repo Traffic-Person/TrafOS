@@ -15,11 +15,24 @@
 #define C_GRAY        0x007F7F7F
 #define C_DARK_GRAY   0x003F3F3F
 
+#define SCREEN_WIDTH 1920
+#define SCREEN_HEIGHT 1080
+
 void graphics_init(void);
 
 void put_pixel(int x, int y, unsigned int color);
 
 void fill_rect(int x, int y, int width, int height, unsigned int color);
+
+void draw_char(char c, int x, int y, unsigned int color);
+
+void print(const char *str);
+
+void printnum(int num);
+
+void printerr(const char *str);
+
+void putchar(char c, unsigned int color);
 
 void clear_screen(unsigned int color);
 

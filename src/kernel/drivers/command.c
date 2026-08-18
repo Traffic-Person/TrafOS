@@ -79,7 +79,7 @@ void execute_test_program(char *name)
         program[i] = buffer[i];
     }
 
-    print("Program loaded at 0x20000\n", 0x0A);
+    print("Program loaded at 0x20000\n");
 }
 
 void command_run(char *input)
@@ -151,25 +151,25 @@ void command_run(char *input)
 
     if (strcmp(command, "help"))
     {
-        print("List of commands:\n", 0x0F);
+        print("List of commands:\n");
 
-        print("help:   this command\n", 0x0F);                       // 1
-        print("about:  about this system\n", 0x0F);
-        print("clear:  clears the screen\n", 0x0F);
-        print("color:  changes text color\n", 0x0F);
-        print("echo:   prints a string\n", 0x0F);
-        print("time:   prints the time\n", 0x0F);
-        print("cpu:    prints the CPU vendor\n", 0x0F);
-        print("uptime: prints uptime\n", 0x0F);
-        print("ls:     lists files and directories\n", 0x0F);
-        print("cd:     changes directory\n", 0x0F);
-        print("mkdir:  makes a new directory\n", 0x0F);
-        print("rm:     deletes a file or empty directory\n", 0x0F);
-        print("touch:  makes a new file\n", 0x0F);
-        print("write:  writes data to a file\n", 0x0F);
-        print("cat:    reads file data\n", 0x0F);
-        print("reboot: reboots the system\n", 0x0F);
-        print("quit:   shuts down the system\n", 0x0F);               // 17
+        print("help:   this command\n");                       // 1
+        print("about:  about this system\n");
+        print("clear:  clears the screen\n");
+        print("color:  changes text color\n");
+        print("echo:   prints a string\n");
+        print("time:   prints the time\n");
+        print("cpu:    prints the CPU vendor\n");
+        print("uptime: prints uptime\n");
+        print("ls:     lists files and directories\n");
+        print("cd:     changes directory\n");
+        print("mkdir:  makes a new directory\n");
+        print("rm:     deletes a file or empty directory\n");
+        print("touch:  makes a new file\n");
+        print("write:  writes data to a file\n");
+        print("cat:    reads file data\n");
+        print("reboot: reboots the system\n");
+        print("quit:   shuts down the system\n");               // 17
     }
 
 
