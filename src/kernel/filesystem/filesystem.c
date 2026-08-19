@@ -1,6 +1,6 @@
 #include "filesystem.h"
 
-#include "../drivers/screen.h"
+#include "../drivers/graphics.h"
 #include "../drivers/disk.h"
 
 #define FS_MAX_ENTRIES 64
@@ -110,15 +110,15 @@ void filesystem_list(unsigned int directory)
 
         if (entries[i].type == FS_TYPE_DIRECTORY)
         {
-            print(entries[i].name, 0x0B);
-            print("/", 0x0B);
+            print(entries[i].name);
+            print("/");
         }
         else 
         {
-            print(entries[i].name, 0x0F);
+            print(entries[i].name);
         }
 
-        print("\n", 0x0F);
+        print("\n");
     }
 }
 
@@ -178,21 +178,21 @@ void filesystem_print_path()
         current = entries[current].parent;
     }
 
-    print("TrafOS ", 0x0F);
+    print("TrafOS ");
 
-    print("/", 0x0F);
+    print("/");
 
     for (int i = path_len - 2; i >= 0; i--)
     {
-        print(entries[path[i]].name, 0x0F);
+        print(entries[path[i]].name);
 
         if (i > 0)
         {
-            print("/", 0x0F);
+            print("/");
         }
     }
 
-    print(" $ ", 0x0F);
+    print(" $ ");
 }
 
 int filesystem_create(
@@ -353,10 +353,10 @@ int filesystem_read_file(char *name)
 
         for (unsigned int j = 0; j < entries[i].size; j++)
         {
-            putchar(buffer[j], 0x0F);
+            putchar(buffer[j], 0x00FFFFFF);
         }
 
-        print("\n", 0x0F);
+        print("\n");
 
         return 1;
     }
@@ -585,24 +585,24 @@ void filesystem_start()
 {
     if (filesystem_load_superblock())
     {
-        print("Filesystem found!\n", 0x0A);
+        print("Filesystem found!\n");
 
         if (filesystem_load_entries())
         {
-            print("Filesystem entries loaded!\n", 0x0A);
+            print("Filesystem entries loaded!\n");
         }
         else
         {
-            print("Failed to load filesystem entries!\n", 0x04);
+            print("Failed to load filesystem entries!\n");
         }
     }
     else
     {
-        print("No filesystem found!\n", 0x04);
+        print("No filesystem found!\n");
 
         filesystem_init();
 
-        print("Filesystem created!\n", 0x0A);
+        print("Filesystem created!\n");
     }
 
 }

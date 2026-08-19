@@ -1,6 +1,6 @@
 #include "disk.h"
 #include "io.h"
-#include "screen.h"
+#include "graphics.h"
 
 #define ATA_DATA        0x1F0
 #define ATA_SECCOUNT    0x1F2
@@ -59,7 +59,7 @@ void disk_read(unsigned int lba, unsigned char *buffer)
 
     if (timeout == 0)
     {
-        print("ATA: BSY timeout\n", 0x04);
+        print("ATA: BSY timeout\n");
         disk_hang();
     }
 
@@ -83,7 +83,7 @@ void disk_read(unsigned int lba, unsigned char *buffer)
 
         if (status & STATUS_ERR)
         {
-            print("ATA: read error\n", 0x04);
+            print("ATA: read error\n");
             disk_hang();
         }
 
@@ -97,9 +97,9 @@ void disk_read(unsigned int lba, unsigned char *buffer)
 
     if (timeout == 0)
     {
-        print("ATA: DRQ timeout\n", 0x04);
-        printnum(status, 0x04);
-        print("\n", 0x04);
+        print("ATA: DRQ timeout\n");
+        printnum(status);
+        print("\n");
         disk_hang();
     }
 
@@ -117,7 +117,7 @@ void disk_read(unsigned int lba, unsigned char *buffer)
 
     if (status & STATUS_ERR)
     {
-        print("ATA: error after read\n", 0x04);
+        print("ATA: error after read\n");
         disk_hang();
     }
 }

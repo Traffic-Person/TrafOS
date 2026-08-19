@@ -163,7 +163,7 @@ void keyboard_handler()
             if (input_pos > 0)
             {
                 input_pos--;
-                putchar('\b', 0x0F);
+                putchar('\b', 0x00FFFFFF);
             }
         }
         else
@@ -173,7 +173,7 @@ void keyboard_handler()
                 input[input_pos] = key;
                 input_pos++;
 
-                putchar(key, 0x0F);
+                putchar(key, 0x00FFFFFF);
             }
         }
     }

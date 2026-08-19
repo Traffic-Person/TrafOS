@@ -1,5 +1,5 @@
 #include "command.h"
-#include "screen.h"
+#include "graphics.h"
 #include "io.h"
 #include "rtc.h"
 #include "cpu.h"
@@ -62,6 +62,34 @@ int hex_to_number(char *text)
     return result;
 }
 
+unsigned int parse_hex(const char *str)
+{
+    unsigned int value = 0;
+
+    if (str[0] == '0' && (str[1] == 'x' || str[1] == 'X'))
+        str += 2;
+
+    while (*str)
+    {
+        char c = *str;
+
+        value <<= 4;
+
+        if (c >= '0' && c <= '9')
+            value += c - '0';
+        else if (c >= 'a' && c <= 'f')
+            value += c - 'a' + 10;
+        else if (c >= 'A' && c <= 'F')
+            value += c - 'A' + 10;
+        else
+            break;
+
+        str++;
+    }
+
+    return value;
+}
+
 void execute_test_program(char *name)
 {
     unsigned char buffer[512];
@@ -82,6 +110,19 @@ void execute_test_program(char *name)
     print("Program loaded at 0x20000\n");
 }
 
+int parse_number(const char **str)
+{
+    int number = 0;
+
+    while (**str >= '0' && **str <= '9')
+    {
+        number = number * 10 + (**str - '0');
+        (*str)++;
+    }
+
+    return number;
+}
+
 void command_run(char *input)
 {
     char command[32];
@@ -90,7 +131,7 @@ void command_run(char *input)
     int i = 0;
     int j = 0;
 
-    print("\n", 0x0F);
+    print("\n");
 
 
     /*
@@ -153,72 +194,41 @@ void command_run(char *input)
     {
         print("List of commands:\n");
 
-        print("help:   this command\n");                       // 1
-        print("about:  about this system\n");
-        print("clear:  clears the screen\n");
-        print("color:  changes text color\n");
-        print("echo:   prints a string\n");
-        print("time:   prints the time\n");
-        print("cpu:    prints the CPU vendor\n");
-        print("uptime: prints uptime\n");
-        print("ls:     lists files and directories\n");
-        print("cd:     changes directory\n");
-        print("mkdir:  makes a new directory\n");
-        print("rm:     deletes a file or empty directory\n");
-        print("touch:  makes a new file\n");
-        print("write:  writes data to a file\n");
-        print("cat:    reads file data\n");
-        print("reboot: reboots the system\n");
-        print("quit:   shuts down the system\n");               // 17
+        print("help:      this command\n");                       // 1
+        print("about:     about this system\n");
+        print("clear:     clears the screen\n");
+        print("echo:      prints a string\n");
+        print("time:      prints the time\n");
+        print("cpu:       prints the CPU vendor\n");
+        print("uptime:    prints uptime\n");
+        print("ls:        lists files and directories\n");
+        print("cd:        changes directory\n");
+        print("mkdir:     makes a new directory\n");
+        print("rm:        deletes a file or empty directory\n");
+        print("touch:     makes a new file\n");
+        print("write:     writes data to a file\n");
+        print("cat:       reads file data\n");
+        print("fill_rect: draws a filled rectangle\n");
+        print("reboot:    reboots the system\n");
+        print("quit:      shuts down the system\n");               // 17
     }
 
 
     else if (strcmp(command, "clear"))
     {
-        screen_clear();
+        clear_screen(C_BLACK);
     }
-
-
-    else if (strcmp(command, "color"))
-    {
-        if (argument[0] == '\0')
-        {
-            printerr("missing color\n");
-        }
-        else
-        {
-            int color = hex_to_number(argument);
-
-            if (color >= 0 && color <= 0x0F)
-            {
-                screen_set_color(color);
-
-                print("Color changed!\n", color);
-            }
-            else if (strcmp(argument, "default"))
-            {
-                screen_set_color(0x0F);
-
-                print("Color changed!\n", 0x0F);
-            }
-            else
-            {
-                printerr("invalid VGA color!\n");
-            }
-        }
-    }
-
 
     else if (strcmp(command, "about"))
     {
-        print("TrafOS, made by Traffic person x86_32 bit system\n", 0x0F);
-        print("github.com/Traffic-Person/TrafOS\n", 0x0F);
+        print("TrafOS, made by Traffic person x86_32 bit system\n");
+        print("github.com/Traffic-Person/TrafOS\n");
     }
 
 
     else if (strcmp(command, "quit"))
     {
-        print("Shutting down...\n", 0x0F);
+        print("Shutting down...\n");
 
         while (1)
         {
@@ -230,14 +240,14 @@ void command_run(char *input)
 
     else if (strcmp(command, "echo"))
     {
-        print(argument, 0x0F);
-        print("\n", 0x0F);
+        print(argument);
+        print("\n");
     }
 
 
     else if (strcmp(command, "reboot"))
     {
-        print("Rebooting...\n", 0x0F);
+        print("Rebooting...\n");
 
         outb(0x64, 0xFE);
 
@@ -254,24 +264,24 @@ void command_run(char *input)
         int minutes = rtc_minutes();
         int seconds = rtc_seconds();
 
-        printnum(hours, 0x0F);
-        print(":", 0x0F);
+        printnum(hours);
+        print(":");
 
         if (minutes < 10)
         {
-            print("0", 0x0F);
+            print("0");
         }
 
-        printnum(minutes, 0x0F);
-        print(":", 0x0F);
+        printnum(minutes);
+        print(":");
 
         if (seconds < 10)
         {
-            print("0", 0x0F);
+            print("0");
         }
 
-        printnum(seconds, 0x0F);
-        print("\n", 0x0F);
+        printnum(seconds);
+        print("\n");
     }
 
 
@@ -281,9 +291,9 @@ void command_run(char *input)
 
         cpu_vendor(vendor);
 
-        print("CPU: ", 0x0F);
-        print(vendor, 0x0F);
-        print("\n", 0x0F);
+        print("CPU: ");
+        print(vendor);
+        print("\n");
     }
 
 
@@ -291,9 +301,9 @@ void command_run(char *input)
     {
         unsigned int seconds = timer_ticks / 100;
 
-        print("Uptime: ", 0x0F);
-        printnum(seconds, 0x0F);
-        print(" seconds\n", 0x0F);
+        print("Uptime: ");
+        printnum(seconds);
+        print(" seconds\n");
     }
 
 
@@ -319,15 +329,15 @@ void command_run(char *input)
         {
             if (filesystem_change_dir(argument))
             {
-                print("Changed directory to: ", 0x0F);
-                print(argument, 0x0F);
-                print("\n", 0x0F);
+                print("Changed directory to: ");
+                print(argument);
+                print("\n");
             }
             else
             {
                 printerr("directory '");
-                print(argument, 0x04);
-                print("' not found\n", 0x04);
+                print(argument);
+                print("' not found\n");
             }
         }
     }
@@ -349,9 +359,9 @@ void command_run(char *input)
                 1
             ) >= 0)
         {
-            print("Directory '", 0x0F);
-            print(argument, 0x0F);
-            print("' created\n", 0x0F);
+            print("Directory '");
+            print(argument);
+            print("' created\n");
         }
 
         else
@@ -370,16 +380,16 @@ void command_run(char *input)
 
         else if (filesystem_delete(argument))
         {
-            print("Deleted '", 0x0F);
-            print(argument, 0x0F);
-            print("'\n", 0x0F);
+            print("Deleted '");
+            print(argument);
+            print("'\n");
         }
 
         else
         {
             printerr("could not delete '");
-            print(argument, 0x04);
-            print("'\n", 0x04);
+            print(argument);
+            print("'\n");
         }
     }
 
@@ -391,9 +401,9 @@ void command_run(char *input)
         }
         else if (filesystem_create(argument, FS_TYPE_FILE, current_dir, 1, 1) >= 0)
         {
-            print("File '", 0x0F);
-            print(argument, 0x0F);
-            print("' created\n", 0x0F);
+            print("File '");
+            print(argument);
+            print("' created\n");
         }
         else
         {
@@ -428,7 +438,7 @@ void command_run(char *input)
             }
             else if (filesystem_write_file(filename, data))
             {
-                print("File written\n", 0x0F);
+                print("File written\n");
             }
             else
             {
@@ -455,19 +465,19 @@ void command_run(char *input)
 
         if (filesystem_read_file_data(argument, buffer, 512))
         {
-            print("Loaded file into memory\n", 0x0A);
+            print("Loaded file into memory\n");
 
-            print("Contents: ", 0x0F);
+            print("Contents: ");
 
-            print("Bytes: ", 0x0F);
+            print("Bytes: ");
 
             for (unsigned int i = 0; i < 16; i++)
             {
-                printnum(buffer[i], 0x0F);
-                print(" ", 0x0F);
+                printnum(buffer[i]);
+                print(" ");
             }
 
-            print("\n", 0x0F);
+            print("\n");
         }
         else
         {
@@ -487,10 +497,52 @@ void command_run(char *input)
         }
     }
 
+    else if (strcmp(command, "fill_rect"))
+    {
+        if (argument[0] == '\0')
+        {
+            printerr("usage: fill_rect <x>, <y>, <width>, <height>, <color>\n");
+            print("Colors: 0x11223344, 1 is alpha, 2 is red, 3 is green, 4 is blue\n");
+        }
+        const char *p = argument;
+
+        int x = parse_number(&p);
+
+        while (*p == ' ' || *p == ',')
+        {
+            p++;
+        }
+
+        int y = parse_number(&p);
+
+        while (*p == ' ' || *p == ',')
+        {
+            p++;
+        }
+
+        int width = parse_number(&p);
+
+        while (*p == ' ' || *p == ',')
+        {
+            p++;
+        }
+
+        int height = parse_number(&p);
+
+        while (*p == ' ' || *p == ',')
+        {
+            p++;
+        }
+
+        unsigned int color = parse_hex(p);
+
+        fill_rect(x, y, width, height, color);
+    }
+
     else
     {
         printerr("unknown command '");
-        print(command, 0x04);
-        print("'\n", 0x04);
+        print(command);
+        print("'\n");
     }
 }

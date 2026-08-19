@@ -13,9 +13,13 @@ void kernel_main(void)
 
     clear_screen(C_BLACK);
 
+    fill_rect(0, 0, 100, 1080, C_RED);
+    fill_rect(100, 0, 100, 1080, C_BLUE);
+    fill_rect(200, 0, 100, 1080, C_CYAN);
+
     print("Welcome to TrafOS\n");
 
-    print("ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n1234567890\n!@#$%^&*()_+-=\|[]{};:',.<>/?");
+    print("ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n1234567890\n!@#$%^&*()_+-=\|[]{};:',.<>/?\n");
 
     idt_init();
     timer_init();

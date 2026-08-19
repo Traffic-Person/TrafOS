@@ -34,6 +34,10 @@ void printerr(const char *str);
 
 void putchar(char c, unsigned int color);
 
+void draw_cursor();
+
+void cursor_blink();
+
 void clear_screen(unsigned int color);
 
 #endif
