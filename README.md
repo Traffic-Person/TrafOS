@@ -20,6 +20,8 @@ to run:
 
 # How to use the OS
 
+(ctrl + alt + f to fullscreen (recommended))
+
 you type with your keyboard
 
 (type help for commands)
