@@ -6,7 +6,9 @@ A x86_32 bit system made by me.
 
 to compile you need to have linux and qemu-system-x86_64
 
-to compile you need to clone the repository (the source)
+to compile you need to download the TrafOS.zip from the releases
+
+extract
 
 and in the main source code folder run 
 
