@@ -1,12 +1,25 @@
-# An x86 operating system made by me
+# TrafOS
 
-# Why?
+A x86_32 bit system made by me.
 
-im making this to learn about computers and assembly
+# How to compile/run
 
-# How
+to compile you need to have linux and qemu-system-x86_64
 
-it runs with qemu-system-x86
+to compile you need to clone the repository (the source)
 
+and in the main source code folder run 
 
+``make``
 
+to run:
+
+``make run``
+
+# How to use the OS
+
+you type with your keyboard
+
+(type help for commands)
+
+(or type fill_rect for help for the fill_rect command)
